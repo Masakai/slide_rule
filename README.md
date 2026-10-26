@@ -15,6 +15,12 @@
 
 S 尺・T 尺は D 尺に対して読む配置にしている（D 尺の読み ÷ 10 が sin・tan）。
 
+## ダウンロード
+
+macOS 版は [Releases](https://github.com/Masakai/slide_rule/releases) から、最新の `SlideRule-x.y.z.zip` をダウンロードして展開し、`SlideRule.app` を開く。macOS 15 以降が必要で、Apple Silicon と Intel の Mac で動く。Developer ID で署名し、Apple の公証を受けているので、警告なしに開ける。
+
+iOS 版は配布していない。下の手順でソースからビルドする。
+
 ## 構成
 
 ```
@@ -42,7 +48,7 @@ open SlideRule.xcodeproj
 Tools/notarize_mac.sh 0.1.0
 ```
 
-Release ビルド（universal）を Developer ID で署名し、公証・staple・`syspolicy_check` まで行って `dist/SlideRule-0.1.0-mac.zip` を作る。`Local.xcconfig` に `DEVELOPMENT_TEAM` と `MAC_SIGN_IDENTITY`（Developer ID Application 証明書の SHA-1）を書いておく。公証には Keychain のプロファイル `notarytool-password` を使う。
+Release ビルド（universal）を Developer ID で署名し、公証・staple・`syspolicy_check` まで行って `dist/SlideRule-0.1.0.zip` を作る。`Local.xcconfig` に `DEVELOPMENT_TEAM` と `MAC_SIGN_IDENTITY`（Developer ID Application 証明書の SHA-1）を書いておく。公証には Keychain のプロファイル `notarytool-password` を使う。
 
 ## テスト
 

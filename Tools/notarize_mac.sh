@@ -25,7 +25,7 @@ SIGN_IDENTITY="$(read_local MAC_SIGN_IDENTITY)"
 BUILD_DIR="${TMPDIR:-/tmp}/SlideRule-mac-release"
 APP="dist/SlideRule.app"
 NOTARIZE_ZIP="dist/SlideRule-notarize.zip"
-FINAL_ZIP="dist/SlideRule-${VERSION}-mac.zip"
+FINAL_ZIP="dist/SlideRule-${VERSION}.zip"
 
 echo "==> Generating project..."
 xcodegen generate --quiet
@@ -77,3 +77,4 @@ syspolicy_check distribution "$APP" || { echo "Error: syspolicy_check に失敗�
 rm -f "$FINAL_ZIP"
 ditto -c -k --keepParent "$APP" "$FINAL_ZIP"
 echo "==> Done: $FINAL_ZIP"
+echo "SHA-256: $(shasum -a 256 "$FINAL_ZIP" | cut -d' ' -f1)"
