@@ -4,6 +4,9 @@ options:
     deploymentTarget:
         iOS: "18.0"
         macOS: "15.0"
+configFiles:
+    Debug: Base.xcconfig
+    Release: Base.xcconfig
 packages:
     SlideRuleKit:
         path: Packages/SlideRuleKit

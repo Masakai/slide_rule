@@ -25,9 +25,12 @@ project.yml                  XcodeGen の設定
 
 ```bash
 brew install xcodegen   # 未導入の場合
+cp Local.xcconfig.example Local.xcconfig   # 実機で動かす場合。DEVELOPMENT_TEAM を自分のチーム ID にする
 xcodegen generate
 open SlideRule.xcodeproj
 ```
+
+署名のチームは git 管理外の `Local.xcconfig` に書き、`Base.xcconfig` から読み込む。
 
 ## テスト
 
