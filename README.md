@@ -47,3 +47,7 @@ cd Packages/SlideRuleKit && swift test
 ```
 
 レッスン・練習問題の各手順で、カーソル線の下に正しい値が読めることを検証している。
+
+## ライセンス
+
+[MIT License](LICENSE)
