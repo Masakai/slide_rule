@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>計算尺道場 — 計算尺を、Mac で学ぼう</title>
+<meta name="description" content="計算尺の使い方を学ぶ Mac アプリ。9 本の尺を持つ計算尺をドラッグで動かし、計算尺が手順どおりに動くレッスンと、小数点の位置まで採点する練習で学べます。無料、MIT ライセンス。">
+<meta property="og:title" content="計算尺道場 — 3 × 4 = 1.2。計算尺では、これが正解。">
+<meta property="og:description" content="計算尺の使い方を学ぶ Mac アプリ。動かせる計算尺、自動で動くレッスン、小数点の位置まで採点する練習。">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://masakai.github.io/slide_rule/">
+<meta property="og:image" content="https://masakai.github.io/slide_rule/assets/poster.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#f5f1e6">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f7f3e3'/%3E%3Crect x='3' y='12' width='26' height='8' fill='%23fffef8' stroke='%238c806b'/%3E%3Cpath d='M6 7v4M10 7v3M14 7v4M18 7v3M22 7v4M26 7v3M6 21v4M11 21v3M16 21v4M21 21v3M26 21v4' stroke='%231a1a1a'/%3E%3Cpath d='M17 3v26' stroke='%23c81a1a' stroke-width='1.6'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f5f1e6; --paper:#fffdf6; --stator:#f7f3e3; --slide:#fffef8;
+  --ink:#1d1b17; --mute:#6e685e; --dim:#968e80; --line:rgba(60,45,20,.14);
+  --red:#c81a1a; --blue:#2f7bf6; --orange:#e2761b; --green:#2f9e4f;
+  --sans:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Hiragino Kaku Gothic ProN","Noto Sans JP",system-ui,sans-serif;
+  --round:ui-rounded,"SF Pro Rounded",-apple-system,"Hiragino Sans",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.75 var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+code{font:.92em var(--mono);background:rgba(60,45,20,.07);padding:1px 6px;border-radius:5px}
+.wrap{width:min(1120px,100% - 40px);margin-inline:auto}
+
+/* 背景：うっすらと方眼 */
+.bg{position:fixed;inset:0;z-index:-1;background:
+  radial-gradient(900px 500px at 82% -10%,rgba(200,26,26,.08),transparent 62%),var(--bg)}
+.bg::after{content:"";position:absolute;inset:0;opacity:.6;
+  background-image:linear-gradient(rgba(60,45,20,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(60,45,20,.045) 1px,transparent 1px);
+  background-size:44px 44px;mask-image:radial-gradient(ellipse 80% 60% at 50% 15%,#000 30%,transparent 80%)}
+
+/* ナビ */
+nav{position:sticky;top:0;z-index:20;backdrop-filter:blur(14px) saturate(1.2);background:rgba(245,241,230,.82);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;gap:22px;height:58px}
+.logo{font:800 18px var(--sans);letter-spacing:.06em;text-decoration:none;display:flex;align-items:center;gap:10px;white-space:nowrap}
+.logo svg{width:26px;height:26px;flex:none}
+nav ul{display:flex;gap:22px;list-style:none;margin:0 0 0 auto;padding:0;font-size:14px;color:var(--mute)}
+nav ul a{text-decoration:none}nav ul a:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font:600 14px var(--sans);text-decoration:none;cursor:pointer;transition:.18s}
+.btn:hover{border-color:rgba(60,45,20,.35);transform:translateY(-1px)}
+.btn.primary{background:var(--red);border-color:#a51212;color:#fff;box-shadow:0 8px 24px -10px rgba(200,26,26,.7)}
+.btn.primary:hover{filter:brightness(1.08)}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:6px}
+
+/* ヒーロー */
+.hero{padding:70px 0 30px;text-align:center}
+.eyebrow{font:700 13px var(--sans);letter-spacing:.3em;color:var(--red)}
+.eq{font:800 clamp(52px,10vw,118px)/1 var(--round);margin:22px 0 4px;letter-spacing:.01em;font-variant-numeric:tabular-nums}
+.eq em{font-style:normal;color:var(--red)}
+.tag{font:700 clamp(22px,3.4vw,34px)/1.35 var(--sans);margin:12px 0 0}
+.lead{max-width:700px;margin:18px auto 0;color:var(--mute);font-size:17px}
+.cta{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:30px}
+.badges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:22px;font:12px var(--mono);color:var(--mute)}
+.badges span{padding:3px 10px;border:1px solid var(--line);border-radius:99px;background:rgba(255,255,255,.45)}
+
+/* セクション */
+section{padding:80px 0}
+.kicker{font:700 12px var(--sans);letter-spacing:.28em;color:var(--red)}
+h2{font:800 clamp(28px,4.6vw,42px)/1.25 var(--sans);margin:12px 0 14px;letter-spacing:-.005em}
+.sub{color:var(--mute);max-width:660px;margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:18px;margin-top:40px}
+.card{padding:26px;border:1px solid var(--line);border-radius:16px;background:var(--paper);transition:.25s;position:relative;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--red);opacity:0;transition:.25s}
+.card:hover{transform:translateY(-3px);box-shadow:0 18px 40px -24px rgba(60,45,20,.45)}
+.card:hover::before{opacity:1}
+.card .ico{font:800 12px var(--mono);color:var(--red);letter-spacing:.1em;margin-bottom:10px}
+.card h3{margin:0 0 8px;font:700 19px/1.4 var(--sans)}
+.card p{margin:0;color:var(--mute);font-size:15px}
+.shot{margin:0}
+.shot img{width:100%;height:auto;display:block;border-radius:14px;border:1px solid var(--line);box-shadow:0 30px 70px -36px rgba(60,45,20,.6)}
+.shot figcaption{font-size:13px;color:var(--dim);margin-top:10px}
+.mac{max-width:960px;margin:42px auto 0}
+.phones{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:34px}
+.phones img{border-radius:22px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:38px}
+.box{border:1px solid var(--line);border-radius:16px;padding:26px;background:var(--paper)}
+.box h3{margin:0 0 6px;font:700 17px var(--sans)}
+.box p{color:var(--mute);margin:0 0 12px;font-size:15px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--dim);font-weight:600;font-size:12px;letter-spacing:.08em}
+td:first-child{font:700 14px var(--round);white-space:nowrap}
+td.ci{color:var(--red)}
+pre{margin:0;padding:18px 20px;background:#22201b;border-radius:14px;font:13px/1.8 var(--mono);color:#ece6d6;overflow-x:auto;position:relative}
+pre .c{color:#9c9484}
+.copy{position:absolute;top:10px;right:10px;padding:5px 10px;font:11px var(--mono);background:#3a362e;color:#ece6d6;border-color:#4b463c}
+.steps{counter-reset:s;display:grid;gap:12px;margin:22px 0 0;padding:0;list-style:none}
+.steps li{counter-increment:s;display:flex;gap:14px;color:var(--mute)}
+.steps li::before{content:counter(s);flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 12px var(--round);color:#fff;background:var(--red);margin-top:2px}
+.notes{border:1px solid rgba(200,26,26,.25);background:linear-gradient(180deg,rgba(200,26,26,.05),rgba(200,26,26,.015));border-radius:18px;padding:30px}
+.notes td:first-child{font:700 14px var(--sans)}
+footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);font-size:14px}
+footer .wrap{display:flex;gap:18px;flex-wrap:wrap;justify-content:space-between}
+footer a{color:var(--mute)}
+
+/* 動画 */
+.video-wrap{max-width:960px;margin:0 auto}
+.video-wrap video{width:100%;height:auto;display:block;border-radius:16px;border:1px solid var(--line);background:#e9e3d3;box-shadow:0 30px 70px -36px rgba(60,45,20,.6)}
+.video-wrap .note{font-size:13px;color:var(--dim);margin:12px 4px 0}
+.video-wrap details{margin:8px 4px 0;font-size:14px;color:var(--mute)}
+.video-wrap summary{cursor:pointer;color:var(--dim)}
+.video-wrap ol{margin:8px 0 0;padding-left:1.4em}
+
+/* ブラウザで動く計算尺 */
+.tryit{margin-top:38px;border:1px solid var(--line);border-radius:18px;background:var(--paper);padding:22px 22px 18px}
+.tryit h3{margin:0 0 4px;font:700 18px var(--sans)}
+.tryit p{margin:0;color:var(--mute);font-size:15px}
+.rule{width:100%;height:auto;display:block;margin-top:16px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:ew-resize}
+.readout{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin-top:12px;font:15px var(--round)}
+.readout b{font-weight:800}
+.readout .r{color:var(--red)}
+.readout .spacer{flex:1}
+
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .7s,transform .7s}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+@media (max-width:820px){
+  nav ul{display:none}nav .btn{margin-left:auto}
+  .two{grid-template-columns:1fr}
+  .phones{grid-template-columns:repeat(2,1fr)}
+  .hero{padding-top:44px}section{padding:58px 0}
+}
+@media (max-width:520px){
+  .wrap{width:min(1120px,100% - 32px)}
+  nav .wrap{gap:10px}
+  .logo{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div class="bg" aria-hidden="true"></div>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#top" aria-label="計算尺道場 トップへ">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="#f7f3e3" stroke="rgba(60,45,20,.25)"/><rect x="3" y="12" width="26" height="8" fill="#fffef8" stroke="#8c806b"/><path d="M6 7v4M10 7v3M14 7v4M18 7v3M22 7v4M26 7v3M6 21v4M11 21v3M16 21v4M21 21v3M26 21v4" stroke="#1a1a1a"/><path d="M17 3v26" stroke="#c81a1a" stroke-width="1.6"/></svg>
+      計算尺道場
+    </a>
+    <ul>
+      <li><a href="#video">動画</a></li>
+      <li><a href="#features">特長</a></li>
+      <li><a href="#how">仕組み</a></li>
+      <li><a href="#start">使い方</a></li>
+      <li><a href="#notes">注意点</a></li>
+    </ul>
+    <a class="btn" href="https://github.com/Masakai/slide_rule">GitHub ↗</a>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="eyebrow">計算尺の学習アプリ</div>
+    <div class="eq" aria-label="3 かける 4 は 1.2">3 × 4 = <em>1.2</em></div>
+    <p class="tag">計算尺では、これが正解。</p>
+    <p class="lead">計算尺が出すのは「12」の数字の並びだけで、小数点の位置は自分で決めます。計算尺道場は、その使い方を学ぶ Mac アプリです。9 本の尺を持つ計算尺を動かし、計算尺が手順どおりに動くレッスンと、小数点の位置まで採点する練習で身につけます。</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/Masakai/slide_rule/releases/latest">macOS 版をダウンロード</a>
+      <a class="btn" href="#try">ブラウザで試す</a>
+      <a class="btn" href="https://github.com/Masakai/slide_rule">GitHub で見る ↗</a>
+    </div>
+    <div class="badges"><span>macOS 15+</span><span>Apple Silicon / Intel</span><span>公証済み</span><span>無料</span><span>MIT License</span><span>SwiftUI</span></div>
+  </div>
+</header>
+
+<main>
+<section id="video" style="padding-top:36px">
+  <div class="wrap">
+    <div class="video-wrap reveal">
+      <video controls playsinline preload="none" poster="assets/poster.jpg" aria-label="計算尺道場の紹介動画（日本語ナレーション）">
+        <source src="assets/slide_rule-ja.mp4" type="video/mp4">
+      </video>
+      <p class="note">紹介動画（24 秒、音声あり）。画面は macOS 版を実際に操作して録画したものです。ナレーションは AI 音声（Gemini TTS）です。</p>
+      <details>
+        <summary>ナレーションの文字起こし</summary>
+        <ol>
+          <li>3 かける 4 は、1.2。</li>
+          <li>計算尺では、これが正解です。</li>
+          <li>計算尺道場。計算尺を、Mac で学ぼう。</li>
+          <li>滑尺を動かして、目盛りを読む。</li>
+          <li>レッスンでは、計算尺が自分で動きます。</li>
+          <li>練習は、小数点の位置まで採点。</li>
+          <li>掛け算は、長さの足し算。</li>
+          <li>GitHub から、無料でダウンロード。</li>
+        </ol>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="kicker reveal">特長</div>
+    <h2 class="reveal">動かして、読んで、確かめる。</h2>
+    <p class="sub reveal">計算尺を「知っている」から「使える」にするために、動かせる計算尺、自動で動くレッスン、採点つきの練習、原理の解説を 1 つのアプリにまとめました。</p>
+    <div class="cards">
+      <div class="card reveal"><div class="ico">01 / SCALES</div><h3>9 本の尺を、ドラッグで動かす</h3><p>K・A・B・CI・C・D・L・S・T 尺を備えた計算尺です。滑尺とカーソルをドラッグで動かし、拡大表示（×3〜×16）と微調整ボタンで細かく合わせます。カーソル線の下の値も表示できます。</p></div>
+      <div class="card reveal"><div class="ico">02 / LESSONS</div><h3>計算尺が、手順どおりに動く</h3><p>目盛りの読み方、掛け算（左基線・右基線）、割り算、逆数、2 乗と平方根、3 乗と立方根、常用対数、sin と tan、位取りの 9 レッスン。「次へ」で計算尺が次の状態に動き、注目する尺が光ります。</p></div>
+      <div class="card reveal"><div class="ico">03 / PRACTICE</div><h3>小数点の位置まで採点する</h3><p>10 種類の問題を初級と上級（位取りあり）で出題します。誤差 0.5% 以内で正解。数字の並びは合っていて桁だけ違うときは「桁が違います」と教え、手順をタップすると計算尺がその状態に動きます。</p></div>
+      <div class="card reveal"><div class="ico">04 / PRINCIPLE</div><h3>掛け算が、長さの足し算になる理由</h3><p>log(a × b) = log a + log b を、スライダーで動かせる図で説明します。尺の一覧、精度と有効数字、位取りの例もまとめています。</p></div>
+      <div class="card reveal"><div class="ico">05 / TESTED</div><h3>読み取り値をテストで確認</h3><p>レッスンと練習問題のすべての手順で、カーソル線の下に正しい値が読めることをテストで確かめています（右基線、平方根の A 尺の左右、立方根の K 尺の区間を含む）。</p></div>
+      <div class="card reveal"><div class="ico">06 / OPEN</div><h3>Swift 製、MIT ライセンス</h3><p>SwiftUI で iOS と macOS に対応。尺の計算・目盛り生成・採点は UI を含まないパッケージに分けています。macOS 版は Developer ID で署名し、Apple の公証を受けています。</p></div>
+    </div>
+
+    <figure class="shot mac reveal"><img src="assets/mac-simulator.png" alt="macOS 版の計算尺画面。上段に計算尺全体、中段に 10 倍の拡大表示、下に各尺の読み取り値が並ぶ。C 尺の 1 を D 尺の 2 に合わせ、カーソル線が C 尺の 3 と D 尺の 6 の上にある" width="1600" height="1120" loading="lazy"><figcaption>macOS 版。C 尺の 1 を D 尺の 2 に合わせ、カーソル線を C 尺の 3 に置くと、D 尺に 6 が読めます。</figcaption></figure>
+
+    <div class="phones">
+      <figure class="shot reveal"><img src="assets/simulator.png" alt="iPhone の計算尺画面" width="460" height="1000" loading="lazy"><figcaption>計算尺</figcaption></figure>
+      <figure class="shot reveal"><img src="assets/lesson.png" alt="iPhone のレッスン画面。掛け算（右基線）の手順 4 で、D 尺に 1.2 が読める" width="460" height="1000" loading="lazy"><figcaption>レッスン</figcaption></figure>
+      <figure class="shot reveal"><img src="assets/practice.png" alt="iPhone の練習画面。7.9 × 4.1 に 32.4 と答えて正解になっている" width="460" height="1000" loading="lazy"><figcaption>練習</figcaption></figure>
+      <figure class="shot reveal"><img src="assets/principle.png" alt="iPhone の原理画面。対数の物差しで 2 × 3 = 6 を求める図" width="460" height="1000" loading="lazy"><figcaption>原理</figcaption></figure>
+    </div>
+    <p class="sub reveal" style="margin-top:14px;font-size:14px">iPhone / iPad 版はストアで配布していません。ソースからビルドして使えます。</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="kicker reveal">仕組み</div>
+    <h2 class="reveal">掛け算を、長さの足し算に。</h2>
+    <p class="sub reveal">C 尺・D 尺は、数 x を左端から log₁₀ x の長さの位置に刻んでいます。滑尺をずらして長さ log a に log b をつなげると、合計の位置 log a + log b = log ab に積が現れます。</p>
+
+    <div class="tryit reveal" id="try">
+      <h3>ブラウザで試す（C 尺と D 尺）</h3>
+      <p>中央の滑尺をドラッグすると滑尺が、上下の固定尺をドラッグするとカーソル線が動きます。アプリと同じく、位置 x に 10<sup>x</sup> を刻んでいます。</p>
+      <svg class="rule" id="rule" viewBox="0 0 1000 110" role="img" aria-label="C 尺と D 尺の計算尺。ドラッグで動かせる"></svg>
+      <div class="readout" aria-live="polite">
+        <span>C 尺 <b id="rc">—</b></span>
+        <span>D 尺 <b id="rd" class="r">—</b></span>
+        <span class="spacer"></span>
+        <button class="btn" id="demo" type="button">2 × 3 を合わせる</button>
+        <button class="btn" id="demo2" type="button">3 × 4（右基線）</button>
+        <button class="btn" id="reset" type="button">基線をそろえる</button>
+      </div>
+    </div>
+
+    <div class="two">
+      <div class="box reveal">
+        <h3>尺の一覧</h3>
+        <table>
+          <tr><th>尺</th><th>位置 x に刻む値</th><th>主な用途</th></tr>
+          <tr><td>C・D</td><td>10<sup>x</sup>（1〜10）</td><td>掛け算・割り算</td></tr>
+          <tr><td class="ci">CI</td><td>10<sup>1−x</sup></td><td>逆数</td></tr>
+          <tr><td>A・B</td><td>10<sup>2x</sup>（1〜100）</td><td>2 乗・平方根</td></tr>
+          <tr><td>K</td><td>10<sup>3x</sup>（1〜1000）</td><td>3 乗・立方根</td></tr>
+          <tr><td>L</td><td>x（0〜1）</td><td>常用対数</td></tr>
+          <tr><td>S</td><td>sin θ = 10<sup>x</sup> ÷ 10</td><td>sin（5.74°〜90°）</td></tr>
+          <tr><td>T</td><td>tan θ = 10<sup>x</sup> ÷ 10</td><td>tan（5.71°〜45°）</td></tr>
+        </table>
+      </div>
+      <div class="box reveal">
+        <h3>位取り（小数点の位置）</h3>
+        <p>計算尺が示すのは数字の並びだけです。数を「仮数 × 10 の累乗」に分け、仮数を計算尺で、10 の累乗を暗算で扱います。</p>
+        <ol class="steps">
+          <li>0.032 × 450 を、3.2 × 10⁻² と 4.5 × 10² に分ける</li>
+          <li>計算尺で 3.2 × 4.5。右基線を使い、D 尺に 1.44 が読める</li>
+          <li>右基線を使ったので、仮数どうしの積は読みの 10 倍の 14.4</li>
+          <li>10⁻² × 10² = 10⁰ を掛けて、答えは 14.4</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap">
+    <div class="kicker reveal">使い方</div>
+    <h2 class="reveal">ダウンロードして、開くだけ。</h2>
+    <div class="two">
+      <div class="box reveal">
+        <h3>macOS 版（公証済み）</h3>
+        <ol class="steps">
+          <li><a href="https://github.com/Masakai/slide_rule/releases/latest">Releases</a> から、最新の <code>SlideRule-x.y.z.zip</code> をダウンロードする</li>
+          <li>展開して、<code>SlideRule.app</code> を開く。Developer ID で署名し、Apple の公証を受けているので、警告なしに開けます</li>
+          <li>サイドバーの「レッスン」から「目盛りの読み方」を始める</li>
+        </ol>
+        <p style="margin-top:16px">macOS 15 以降。Apple Silicon と Intel の Mac で動きます（ユニバーサル）。</p>
+      </div>
+      <div class="box reveal">
+        <h3>ソースからビルド（iOS / macOS）</h3>
+        <p>Xcode と <a href="https://github.com/yonaskolb/XcodeGen">XcodeGen</a> が必要です。実機で動かすときは <code>Local.xcconfig.example</code> を <code>Local.xcconfig</code> にコピーして、自分のチーム ID を書きます。</p>
+<pre id="code"><button class="btn copy" id="copyBtn" type="button">COPY</button><span class="c"># clone</span>
+git clone https://github.com/Masakai/slide_rule.git
+cd slide_rule
+
+<span class="c"># Xcode プロジェクトを生成して開く</span>
+brew install xcodegen
+xcodegen generate
+open SlideRule.xcodeproj
+
+<span class="c"># ロジックのテスト</span>
+cd Packages/SlideRuleKit &amp;&amp; swift test</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="notes">
+  <div class="wrap">
+    <div class="notes reveal">
+      <div class="kicker">注意点</div>
+      <h2>知っておいてほしいこと</h2>
+      <table>
+        <tr><td>S 尺・T 尺</td><td>このアプリでは D 尺に対して読む配置です（D 尺の読み ÷ 10 が sin・tan）。実物の計算尺には、滑尺の裏側にあって C 尺に対して読む機種も多いので、手持ちの計算尺がある場合は説明書で確かめてください。</td></tr>
+        <tr><td>精度</td><td>計算尺で読めるのは有効数字 3 桁程度です。練習の採点は誤差 0.5% 以内を正解、1.5% 以内を「惜しい」としています。</td></tr>
+        <tr><td>対応環境</td><td>配布している公証済みのアプリは macOS 版だけです。iPhone / iPad 版はソースからビルドしてください。画面の文字は日本語だけです。</td></tr>
+        <tr><td>紹介動画</td><td>画面は macOS 版を操作して録画したもので、ナレーションは AI 音声（Gemini TTS）です。</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>© 2026 masanorisakai · MIT License</div>
+    <div><a href="https://github.com/Masakai/slide_rule">GitHub</a> · <a href="https://github.com/Masakai/slide_rule/releases">Releases</a> · <a href="https://github.com/Masakai/slide_rule/blob/main/README.md">README</a></div>
+  </div>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+  /* ---------- スクロール表示 ---------- */
+  const io = "IntersectionObserver" in window ? new IntersectionObserver((es) => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: .12 }) : null;
+  document.querySelectorAll(".reveal").forEach(el => io ? io.observe(el) : el.classList.add("in"));
+
+  /* ---------- コピー ---------- */
+  const copyBtn = document.getElementById("copyBtn");
+  copyBtn.addEventListener("click", async () => {
+    const text = [...document.getElementById("code").childNodes].filter(n => n !== copyBtn)
+      .map(n => n.textContent).join("").replace(/^# .*\n/gm, "").replace(/\n{2,}/g, "\n").trim();
+    try { await navigator.clipboard.writeText(text); copyBtn.textContent = "COPIED"; }
+    catch { copyBtn.textContent = "SELECT & COPY"; }
+    setTimeout(() => copyBtn.textContent = "COPY", 1600);
+  });
+
+  /* ---------- ブラウザで動く計算尺（C 尺・D 尺） ---------- */
+  // 画面上の幅に合わせて描き直す。文字の大きさと目盛りの間隔を CSS ピクセルで決め、
+  // 間隔が詰まりすぎる目盛りは省く（アプリの目盛り生成と同じ考え方）
+  const svg = document.getElementById("rule");
+  const NS = "http://www.w3.org/2000/svg";
+  let slide = 0, cursor = Math.log10(2);   // 正規化座標（0〜1）
+  let G = null;                            // 現在の寸法と要素
+  const el = (name, attrs, parent) => {
+    const e = document.createElementNS(NS, name);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    (parent || svg).appendChild(e);
+    return e;
+  };
+  const build = () => {
+    const px = svg.getBoundingClientRect().width || 900;
+    const u = 1000 / px;                   // CSS 1px が viewBox で何単位か
+    const X0 = Math.max(52, 30 * u), L = 1000 - X0 - Math.max(36, 20 * u);
+    const STATOR_TOP = 4 * u, SLIDE_TOP = STATOR_TOP + 16 * u, SLIDE_BOT = SLIDE_TOP + 40 * u;
+    const D_BOT = SLIDE_BOT + 2 * u + 40 * u, VH = D_BOT + 4 * u;
+    const Lpx = L / u;
+    svg.setAttribute("viewBox", `0 0 1000 ${VH.toFixed(1)}`);
+    svg.replaceChildren();
+    // 目盛り：1〜2 は 0.05 刻みまで、2〜10 は 0.1 刻みまで。間隔が 3px 未満の階層は省く
+    const steps = [1, .5, .1, .05];
+    const ticks = [];
+    for (let i = 100; i <= 1000; i += 5) {
+      const v = i / 100;
+      const lv = i % 100 === 0 ? 0 : i % 50 === 0 ? 1 : i % 10 === 0 ? 2 : 3;
+      if (lv === 3 && v >= 2) continue;
+      const step = steps[lv];
+      const gap = (Math.log10(Math.min(v + step, 10)) - Math.log10(v)) * Lpx;
+      if (lv > 0 && gap < 3) continue;
+      ticks.push([v, lv, gap]);
+    }
+    const H = [13, 9, 6, 4].map(h => h * u);
+    const big = 13 * u, small = 9.5 * u;
+    const drawScale = (parent, edgeY, dir, label) => {
+      let d = "";
+      const labels = [];
+      for (const [v, lv] of ticks) {
+        const x = X0 + Math.log10(v) * L;
+        d += `M${x.toFixed(2)} ${edgeY.toFixed(2)}v${(dir * H[lv]).toFixed(2)}`;
+        // 数字は 1〜10 と、余裕があれば 1.5・2.5・3.5
+        if (lv === 0 || (lv === 1 && v < 4 && Lpx >= 560)) labels.push([x, lv, lv === 0 ? String(v) : "5"]);
+      }
+      // 右から順に置き、前の数字と重なるものは省く（10 は必ず残る）
+      let leftEdge = Infinity;
+      for (const [x, lv, txt] of labels.reverse()) {
+        const fs = lv === 0 ? big : small;
+        const half = fs * .32 * txt.length + 1.5 * u;
+        if (x + half > leftEdge) continue;
+        leftEdge = x - half;
+        const t = el("text", { x: x.toFixed(2), y: (edgeY + dir * (H[lv] + (dir > 0 ? fs * .95 : 2 * u))).toFixed(2),
+          "text-anchor": "middle", "font-size": fs.toFixed(1), "font-weight": lv === 0 ? 700 : 400, fill: "#1a1a1a",
+          "font-family": "ui-rounded, -apple-system, sans-serif" }, parent);
+        t.textContent = txt;
+      }
+      el("path", { d, stroke: "#1a1a1a", "stroke-width": (1 * u).toFixed(2), fill: "none" }, parent);
+      if (label) {
+        const nm = el("text", { x: (10 * u).toFixed(1), y: (edgeY + dir * 26 * u).toFixed(1), "font-size": (14 * u).toFixed(1),
+          "font-weight": 800, fill: "#1a1a1a", "font-family": "-apple-system, sans-serif" }, parent);
+        nm.textContent = label;
+      }
+    };
+    // 固定尺（上下）と D 尺
+    el("rect", { x: 0, y: STATOR_TOP, width: 1000, height: SLIDE_TOP - STATOR_TOP - 2 * u, fill: "#f7f3e3", stroke: "#8c806b", "stroke-width": .8 * u });
+    el("rect", { x: 0, y: SLIDE_BOT + 2 * u, width: 1000, height: D_BOT - SLIDE_BOT - 2 * u, fill: "#f7f3e3", stroke: "#8c806b", "stroke-width": .8 * u });
+    drawScale(svg, SLIDE_BOT + 3 * u, 1, "D");
+    // 滑尺と C 尺
+    const slideG = el("g", { style: "cursor:grab" });
+    el("rect", { x: X0 - 22 * u, y: SLIDE_TOP, width: L + 44 * u, height: SLIDE_BOT - SLIDE_TOP, fill: "#fffef8", stroke: "#8c806b", "stroke-width": u }, slideG);
+    drawScale(slideG, SLIDE_BOT - 1 * u, -1, "");
+    const cl = el("text", { x: X0 - 18 * u, y: SLIDE_BOT - 14 * u, "font-size": 14 * u, "font-weight": 800, fill: "#1a1a1a", "font-family": "-apple-system, sans-serif" }, slideG);
+    cl.textContent = "C";
+    // カーソル
+    const curG = el("g", { "pointer-events": "none" });
+    el("rect", { x: -13 * u, y: 1 * u, width: 26 * u, height: VH - 2 * u, rx: 4 * u, fill: "rgba(140,190,240,.2)", stroke: "rgba(140,125,100,.55)", "stroke-width": .8 * u }, curG);
+    el("line", { x1: 0, y1: 1 * u, x2: 0, y2: VH - 1 * u, stroke: "#c81a1a", "stroke-width": 1.6 * u }, curG);
+    G = { X0, L, SLIDE_TOP, SLIDE_BOT, VH, slideG, curG };
+  };
+
+  const rc = document.getElementById("rc"), rd = document.getElementById("rd");
+  const fmt = (v) => v >= 9.995 ? "10" : v.toFixed(v < 2 ? 3 : 2).replace(/0+$/, "").replace(/\.$/, "");
+  const draw = () => {
+    G.slideG.setAttribute("transform", `translate(${(slide * G.L).toFixed(2)} 0)`);
+    G.curG.setAttribute("transform", `translate(${(G.X0 + cursor * G.L).toFixed(2)} 0)`);
+    rd.textContent = fmt(10 ** cursor);
+    const c = cursor - slide;
+    rc.textContent = c >= -1e-9 && c <= 1 + 1e-9 ? fmt(10 ** Math.min(Math.max(c, 0), 1)) : "範囲外";
+  };
+  build(); draw();
+  let lastW = 0;
+  new ResizeObserver(() => {
+    const w = Math.round(svg.getBoundingClientRect().width);
+    if (w && w !== lastW) { lastW = w; build(); draw(); }
+  }).observe(svg);
+
+  // ドラッグ：開始位置で滑尺かカーソルかを決め、ドラッグ中は変えない
+  let drag = null;
+  const toView = (ev) => {
+    const r = svg.getBoundingClientRect();
+    return { x: (ev.clientX - r.left) / r.width * 1000, y: (ev.clientY - r.top) / r.height * G.VH };
+  };
+  svg.addEventListener("pointerdown", (ev) => {
+    const p = toView(ev);
+    drag = { kind: p.y >= G.SLIDE_TOP && p.y <= G.SLIDE_BOT ? "slide" : "cursor", x: p.x, slide, cursor };
+    if (drag.kind === "cursor") { cursor = Math.min(Math.max((p.x - G.X0) / G.L, 0), 1); drag.cursor = cursor; draw(); }
+    svg.setPointerCapture(ev.pointerId);
+    anim = null;
+  });
+  svg.addEventListener("pointermove", (ev) => {
+    if (!drag) return;
+    const dx = (toView(ev).x - drag.x) / G.L;
+    if (drag.kind === "slide") slide = Math.min(Math.max(drag.slide + dx, -1), 1);
+    else cursor = Math.min(Math.max(drag.cursor + dx, 0), 1);
+    draw();
+  });
+  const end = () => { drag = null; };
+  svg.addEventListener("pointerup", end);
+  svg.addEventListener("pointercancel", end);
+
+  // ボタン：アプリのレッスンと同じ手順で動かす
+  let anim = null;
+  const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const animateTo = (steps) => {
+    const run = (i) => {
+      if (i >= steps.length) return;
+      const [s1, c1] = steps[i], s0 = slide, c0 = cursor, t0 = performance.now(), dur = reduce ? 0 : 700;
+      const me = anim = {};
+      const tick = (now) => {
+        if (anim !== me) return;
+        const k = dur ? Math.min((now - t0) / dur, 1) : 1;
+        const e = k < .5 ? 4 * k ** 3 : 1 - (-2 * k + 2) ** 3 / 2;
+        slide = s0 + (s1 - s0) * e; cursor = c0 + (c1 - c0) * e; draw();
+        if (k < 1) requestAnimationFrame(tick); else setTimeout(() => run(i + 1), reduce ? 0 : 250);
+      };
+      requestAnimationFrame(tick);
+    };
+    run(0);
+  };
+  const lg = Math.log10;
+  document.getElementById("demo").addEventListener("click", () =>
+    animateTo([[0, lg(2)], [lg(2), lg(2)], [lg(2), lg(2) + lg(3)]]));
+  document.getElementById("demo2").addEventListener("click", () =>
+    animateTo([[0, lg(3)], [lg(3) - 1, lg(3)], [lg(3) - 1, lg(3) + lg(4) - 1]]));
+  document.getElementById("reset").addEventListener("click", () => animateTo([[0, cursor]]));
+})();
+</script>
+</body>
+</html>
