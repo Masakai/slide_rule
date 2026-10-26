@@ -32,6 +32,14 @@ open SlideRule.xcodeproj
 
 署名のチームは git 管理外の `Local.xcconfig` に書き、`Base.xcconfig` から読み込む。
 
+## macOS 版の配布（署名・公証）
+
+```bash
+Tools/notarize_mac.sh 0.1.0
+```
+
+Release ビルド（universal）を Developer ID で署名し、公証・staple・`syspolicy_check` まで行って `dist/SlideRule-0.1.0-mac.zip` を作る。`Local.xcconfig` に `DEVELOPMENT_TEAM` と `MAC_SIGN_IDENTITY`（Developer ID Application 証明書の SHA-1）を書いておく。公証には Keychain のプロファイル `notarytool-password` を使う。
+
 ## テスト
 
 ```bash

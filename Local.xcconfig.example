@@ -1,2 +1,5 @@
 // このファイルを Local.xcconfig という名前でコピーして、自分の Apple Developer のチーム ID を書く。
 DEVELOPMENT_TEAM = XXXXXXXXXX
+// macOS 版を公証して配布する場合だけ必要。`security find-identity -v -p codesigning` で表示される
+// Developer ID Application 証明書の SHA-1 ハッシュを書く（Tools/notarize_mac.sh が読む）
+MAC_SIGN_IDENTITY = 0000000000000000000000000000000000000000

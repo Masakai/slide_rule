@@ -33,7 +33,9 @@ targets:
                 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
                 INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.education
                 CODE_SIGN_STYLE: Automatic
-                CODE_SIGN_IDENTITY[sdk=macosx*]: "-"
-                ENABLE_HARDENED_RUNTIME: NO
+                # 公証には Hardened Runtime が必要（iOS では無視される）
+                ENABLE_HARDENED_RUNTIME: YES
                 ENABLE_APP_SANDBOX: YES
+                # 公証用ビルドは基本エンタイトルメントの注入を止めるので、サンドボックスをファイルで明示する
+                CODE_SIGN_ENTITLEMENTS[sdk=macosx*]: App/SlideRule.entitlements
                 SUPPORTS_MACCATALYST: NO
