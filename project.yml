@@ -1,0 +1,36 @@
+name: SlideRule
+options:
+    bundleIdPrefix: com.riverruns
+    deploymentTarget:
+        iOS: "18.0"
+        macOS: "15.0"
+packages:
+    SlideRuleKit:
+        path: Packages/SlideRuleKit
+settings:
+    base:
+        SWIFT_VERSION: "6.0"
+        MARKETING_VERSION: "0.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+targets:
+    SlideRule:
+        type: application
+        supportedDestinations: [iOS, macOS]
+        sources:
+            - App
+        dependencies:
+            - package: SlideRuleKit
+        settings:
+            base:
+                PRODUCT_BUNDLE_IDENTIFIER: com.riverruns.SlideRule
+                GENERATE_INFOPLIST_FILE: YES
+                INFOPLIST_KEY_CFBundleDisplayName: 計算尺道場
+                INFOPLIST_KEY_UILaunchScreen_Generation: YES
+                INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone: "UIInterfaceOrientationPortrait"
+                INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad: "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight"
+                INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.education
+                CODE_SIGN_STYLE: Automatic
+                CODE_SIGN_IDENTITY[sdk=macosx*]: "-"
+                ENABLE_HARDENED_RUNTIME: NO
+                ENABLE_APP_SANDBOX: YES
+                SUPPORTS_MACCATALYST: NO
